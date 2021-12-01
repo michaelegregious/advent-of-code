@@ -8,7 +8,7 @@ class TwainMarker
   end
 
   def depths
-    @data.map{ |s| s.chomp.to_i }
+    @data ? @data.map{ |s| s.chomp.to_i } : []
   end
 
   def relative_increases
@@ -20,4 +20,4 @@ class TwainMarker
   end
 end
 
-# TwainMarker.new.relative_increases
+# p TwainMarker.new.relative_increases

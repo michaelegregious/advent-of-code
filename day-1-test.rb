@@ -18,9 +18,11 @@ class TwainMarkerTest < Test::Unit::TestCase
       269
       260
       263
-      197
     ).map{ |d| d + "\n"}
+
     marker = TwainMarker.new(test_data)
     assert_equal marker.relative_increases, 7, 'Did not calculate the correct number'
+    marker = TwainMarker.new(test_data.push('197', '198'))
+    assert_equal marker.relative_increases, 8, 'Handles lower final number than first'
   end
 end
