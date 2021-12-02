@@ -25,4 +25,21 @@ class TwainMarkerTest < Test::Unit::TestCase
     marker = TwainMarker.new(test_data.push('197', '198'))
     assert_equal marker.relative_increases, 8, 'Handles lower final number than first'
   end
+
+  def test_part_two
+      test_data = %w(
+        607
+        618
+        618
+        617
+        647
+        716
+        769
+        792
+      )
+      assert_equal aggregated_marker(test_data), 5, 'Gets it right'
+      p 'RESULT', aggregated_marker(test_data)
+  end
 end
+
+
