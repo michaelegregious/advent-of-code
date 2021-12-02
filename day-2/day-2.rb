@@ -2,15 +2,6 @@
 
 directives = File.open('./data.txt').readlines
 
-# Test_data = [
-#   "forward 5",
-#   "down 5",
-#   "forward 8",
-#   "up 3",
-#   "down 8",
-#   "forward 2",
-# ]
-
 def auto_pilot(directives)
   x = depth = 0
   directives.each do |directive|
@@ -21,10 +12,6 @@ def auto_pilot(directives)
     when 'down' then depth += units
     when 'up' then depth -= units
     end
-    # puts "directive: #{directive}"
-    # puts "I: #{i}"
-    puts "dir: #{dir}"
-    puts "units: #{units}"
   end
   x * depth
 end
