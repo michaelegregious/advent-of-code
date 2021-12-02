@@ -18,8 +18,7 @@ class TwainMarkerTest < Test::Unit::TestCase
       269
       260
       263
-    ).map{ |d| d + "\n"}
-
+    )
     marker = TwainMarker.new(test_data)
     assert_equal marker.relative_increases, 7, 'Did not calculate the correct number'
     marker = TwainMarker.new(test_data.push('197', '198'))
@@ -27,18 +26,19 @@ class TwainMarkerTest < Test::Unit::TestCase
   end
 
   def test_part_two
-      test_data = %w(
-        607
-        618
-        618
-        617
-        647
-        716
-        769
-        792
-      )
-      assert_equal aggregated_marker(test_data), 5, 'Gets it right'
-      p 'RESULT', aggregated_marker(test_data)
+    test_data = %w(
+      607
+      618
+      618
+      617
+      647
+      716
+      769
+      792
+      801
+    )
+    marker = TwainMarker.new(test_data)
+    assert_equal marker.aggregated_increases, 6, 'Gets it right'
   end
 end
 
