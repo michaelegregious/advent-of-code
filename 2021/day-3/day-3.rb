@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-# directives = File.open('./data.txt').readlines
+data = File.open('./data.txt').readlines
 
 test_data = %w(
   00100
@@ -17,12 +17,13 @@ test_data = %w(
   01010
 )
 
-def run_diagnostics(bin)
+def run_diagnostics(binary)
   # tally: [ 0 count, 1 count ] per index
   tally = []
+  x = 0
 
-  bin.each do |str|
-    str.chars.each_with_index do |char, i|
+  binary.each do |str|
+    str.chomp.chars.each_with_index do |char, i|
       tally[i] ||= [0, 0]
       if char == '0'
         tally[i][0] += 1
