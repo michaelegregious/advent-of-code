@@ -37,8 +37,8 @@ class LifeSupportDiagnostics
   end
 
   def life_support_rating()
-    @o2 = oxygen_generator_rating
-    @co2 = co2_scrubber_rating
+    @o2 = @o2 || oxygen_generator_rating
+    @co2 = @co2 || co2_scrubber_rating
     @o2.to_i(2) * @co2.to_i(2)
   end
 
