@@ -58,16 +58,16 @@ def mark_board(board, ball)
   end
 end
 
-# test_board = make_boards(boards_data)[0]
-# p mark_board(test_board, '19')
+def mark_boards(boards, ball)
+  boards.each{ |board| mark_board(board, ball) }
+end
 
-p test_board
-
-# def mark_boards(boards, ball)
+# def score_board(board)
 
 # end
 
+test_boards = make_boards(boards_data)
+p mark_boards(test_boards, '7')
 
-# p "BALL: #{balls}"
-# p "BOARDS 2: #{make_boards(boards_data)}"
-# p "FIRST BOARD: #{make_boards(boards_data)[0][:rows].length}"
+# p test_board
+
