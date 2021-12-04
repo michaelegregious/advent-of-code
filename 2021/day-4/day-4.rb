@@ -2,10 +2,6 @@
 
 raw_data = File.open('./data.txt').readlines
 
-# def process_raw_data(data)
-#   data.map(&:chomp)
-# end
-
 test_data = [
   "7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1",
   "",
@@ -28,13 +24,15 @@ test_data = [
   "2  0 12  3  7"
 ]
 
+# part 1
 data = test_data
 
 balls = data[0].split(',')
 boards_data = data[2..-1]
 
-def make_board(rows)
+def make_board(rows, n)
   {
+    number: n,
     rows: rows.map{ |row| row.split(' ') },
     marked: [],
     bingo: false
@@ -44,7 +42,7 @@ end
 def make_boards(boards_data)
   boards = []
   (0..boards_data.length).step(6).each do |i|
-    boards << make_board(boards_data[i..i + 4])
+    boards << make_board(boards_data[i..i + 4], boards.length)
   end
   boards
 end
@@ -75,7 +73,7 @@ def score_board(board)
     diag_scores[0] = Diagonals[0].select { |pair| pair == square }
     diag_scores[1] = Diagonals[1].select { |pair| pair == square }
   end
-  # p "BOARD scores: #{row_scores}, #{col_scores}, #{diag_scores}"
+
   if [*row_scores, *col_scores].any?{ |score| score == 5 }
     return true
   elsif diag_scores.any?{ |score| score.length == 5 }
@@ -86,11 +84,14 @@ def score_board(board)
 end
 
 def play_round(boards, ball)
+  winner = nil
   boards.each_with_index do |board|
     mark_board(board, ball)
-    return board if score_board(board)
+    if score_board(board) && winner.nil?
+      winner = board
+    end
   end
-  return nil
+  return winner
 end
 
 def play_game(boards, balls)
@@ -113,10 +114,35 @@ def calculate_score(board, ball)
   unmarked_squares.sum{ |str| str.to_i } * ball.to_i
 end
 
-test_boards = make_boards(boards_data)
+boards = make_boards(boards_data)
 
-winner, ball = play_game(test_boards, balls)
+# winner, ball = play_game(boards, balls)
+# p calculate_score(winner, ball)
 
-p calculate_score(winner, ball)
+# part 2
+def lose_game(boards, balls)
+  winners = []
+  balls.each do |ball|
+    if winner = play_round(boards, ball)
+      p "WINNER! #{winner[:number]}, ball: #{ball}"
+      p "BOARDS.length #{boards.length}"
+      unless winners.include?(winner)
+        winners << [winner, ball]
+        boards = boards.select{ |b| b != winner }
+      end
+      if winners.length == boards.length
+        return winners
+      end
+    end
+  end
+  return nil
+end
 
+winners = lose_game(boards, balls)
+loser, ball = winners[-1]
 
+p "LOSER, #{loser}"
+p "ball: #{ball}"
+# p "WINNERS #{winners}"
+
+p calculate_score(loser, ball)
