@@ -48,10 +48,26 @@ def make_boards(boards_data)
   boards
 end
 
+def mark_board(board, ball)
+  board[:rows].each_with_index do |row, row_n|
+    row.each_with_index do |num, col_n|
+      if ball == num
+        board[:marked] << [col_n, row_n]
+      end
+    end
+  end
+end
+
+# test_board = make_boards(boards_data)[0]
+# p mark_board(test_board, '19')
+
+p test_board
+
+# def mark_boards(boards, ball)
+
+# end
 
 
-
-
-p "BALL: #{balls}"
-p "BOARDS 2: #{make_boards(boards_data)}"
-p "FIRST BOARD: #{make_boards(boards_data)[0][:rows].length}"
+# p "BALL: #{balls}"
+# p "BOARDS 2: #{make_boards(boards_data)}"
+# p "FIRST BOARD: #{make_boards(boards_data)[0][:rows].length}"
