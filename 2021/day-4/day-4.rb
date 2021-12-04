@@ -30,13 +30,14 @@ test_data = [
 
 data = test_data
 
-balls = data[0]
+balls = data[0].split(',')
 boards_data = data[2..-1]
 
 def make_board(rows)
   {
     rows: rows.map{ |row| row.split(' ') },
-    marked: []
+    marked: [],
+    bingo: false
   }
 end
 
@@ -62,12 +63,48 @@ def mark_boards(boards, ball)
   boards.each{ |board| mark_board(board, ball) }
 end
 
-# def score_board(board)
+Diagonals = [[[0, 0], [1, 1], [2, 2], [3, 3], [4, 4]], [[0, 4], [1, 3], [2, 2], [3, 1], [4, 0]]]
 
-# end
+def score_board(board)
+  row_scores = [0, 0, 0, 0, 0]
+  col_scores = [0, 0, 0, 0, 0]
+  diag_scores = [[], []]
+  board[:marked].each do |square|
+    col_scores[square[0]] += 1
+    row_scores[square[1]] += 1
+    diag_scores[0] = Diagonals[0].select { |pair| pair == square }
+    diag_scores[1] = Diagonals[1].select { |pair| pair == square }
+  end
+  p "BOARD scores: #{row_scores}, #{col_scores}, #{diag_scores}"
+  if [*row_scores, *col_scores].any?{ |score| score == 5 }
+    return true
+  elsif diag_scores.any?{ |score| score.length == 5 }
+    return true
+  else
+    return false
+  end
+end
+
+def play_round(boards, ball)
+  boards.each_with_index do |board|
+    mark_board(board, ball)
+    return board if score_board(board)
+  end
+  return nil
+end
+
+def play_game(boards, balls)
+  balls.each do |ball|
+    if winner = play_round(boards, ball)
+      return [winner, ball]
+    end
+  end
+end
 
 test_boards = make_boards(boards_data)
-p mark_boards(test_boards, '7')
+
+p play_game(test_boards, balls)
+# p mark_boards(test_boards, '7')
 
 # p test_board
 
