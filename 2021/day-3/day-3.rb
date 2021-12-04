@@ -64,38 +64,47 @@ class LifeSupportDiagnostics
     @data = data
   end
 
+  # def life_support_rating()
+  #   @cached_oxygen_rating ||= oxygen_generator_rating(@data = data, 0)
+  #   @cached_CO2_rating ||= C
+  # end
+
   def oxygen_generator_rating(data = @data, selected_index = 0)
-    @pairs ||= gamma_epsilon_pairs(data)
-    @most_common = most_common_per_index(pairs)
-    selected = []
+    @initial_pairs ||= gamma_epsilon_pairs(data)
+    pairs = selected_index == 0 ? @initial_pairs : gamma_epsilon_pairs(data)
+    most_common = most_common_per_index(pairs)
+    filtered = []
 
     data.each_with_index do |str, i|
-      if str.chomp[selected_index] == most_common[selected_index]
-        selected << str
+      char = str.chomp[selected_index]
+      if char == most_common[selected_index]
+        filtered << str
+      elsif most_common[selected_index] == 'tie' && char == '1'
+          filtered << str
       end
     end
 
-    if selected_indices.size == 1
-      return selected[0]
+    if filtered.size == 1
+      return filtered[0]
     else
-      oxygen_generator_rating(selected, selected_index + 1)
+      oxygen_generator_rating(filtered, selected_index + 1)
     end
   end
-
-
-
-
 
   private
 
   def most_common_per_index(pairs)
-    pairs.map{ |pair| pair[0] > pair[1] ? 0 : 1 }
+    pairs.map do |pair|
+      if pair[0] > pair[1] then '0'
+      elsif pair[0] < pair[1] then '1'
+      else 'tie'
+      end
+    end
   end
 
   def gamma_epsilon_pairs(data)
     tally = [] # [ count 0, count 1 ] per index
-
-    binary.each do |str|
+    data.each do |str|
       str.chomp.chars.each_with_index do |char, i|
         tally[i] ||= [0, 0]
         if char == '0' then tally[i][0] += 1
@@ -103,14 +112,13 @@ class LifeSupportDiagnostics
         end
       end
     end
-
     tally
   end
 end
 
+p LifeSupportDiagnostics.new(test_data).oxygen_generator_rating
 
-
-p gamma_epsilon_pairs(test_data)
+# p gamma_epsilon_pairs(test_data)
 # p run_diagnostics(test_data)
 
 
