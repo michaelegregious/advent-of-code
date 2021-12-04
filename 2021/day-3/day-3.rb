@@ -2,21 +2,6 @@
 
 data = File.open('./data.txt').readlines
 
-test_data = %w(
-  00100
-  11110
-  10110
-  10111
-  10101
-  01111
-  00111
-  11100
-  10000
-  11001
-  00010
-  01010
-)
-
 # part 1
 def gamma_epsilon_diagnostics(binary)
   tally = [] # [ count 0, count 1 ] per index
@@ -45,29 +30,17 @@ def gamma_epsilon_diagnostics(binary)
   gamma * epsilon
 end
 
-# consider first bit of data
-# keep only Ns of the bit criteria
-# if only one number left, stop, that's it
-# else repeat the process, moving one column to the right
-
-# bit criteria:
-# oxygen gen rating:
-#  - consider most common val, 0 or 1
-#  - if equally common, keep values with 1
-#  CO2 rating:
-#  - least common value, 0 or 1
-#  - if equally common, keep 0
-
 # part 2
 class LifeSupportDiagnostics
   def initialize(data = BINARY)
     @data = data
   end
 
-  # def life_support_rating()
-  #   @cached_oxygen_rating ||= oxygen_generator_rating(@data = data, 0)
-  #   @cached_CO2_rating ||= C
-  # end
+  def life_support_rating()
+    @o2 = oxygen_generator_rating
+    @co2 = co2_scrubber_rating
+    @o2.to_i(2) * @co2.to_i(2)
+  end
 
   def oxygen_generator_rating(data = @data, selected_index = 0)
     @initial_pairs ||= gamma_epsilon_pairs(data)
@@ -91,6 +64,28 @@ class LifeSupportDiagnostics
     end
   end
 
+  def co2_scrubber_rating(data = @data, selected_index = 0)
+    @initial_pairs ||= gamma_epsilon_pairs(data)
+    pairs = selected_index == 0 ? @initial_pairs : gamma_epsilon_pairs(data)
+    least_common = least_common_per_index(pairs)
+    filtered = []
+
+    data.each_with_index do |str, i|
+      char = str.chomp[selected_index]
+      if char == least_common[selected_index]
+        filtered << str
+      elsif least_common[selected_index] == 'tie' && char == '0'
+          filtered << str
+      end
+    end
+
+    if filtered.size == 1
+      return filtered[0]
+    else
+      co2_scrubber_rating(filtered, selected_index + 1)
+    end
+  end
+
   private
 
   def most_common_per_index(pairs)
@@ -102,8 +97,17 @@ class LifeSupportDiagnostics
     end
   end
 
+  def least_common_per_index(pairs)
+    pairs.map do |pair|
+      if pair[0] > pair[1] then '1'
+      elsif pair[0] < pair[1] then '0'
+      else 'tie'
+      end
+    end
+  end
+
   def gamma_epsilon_pairs(data)
-    tally = [] # [ count 0, count 1 ] per index
+    tally = []
     data.each do |str|
       str.chomp.chars.each_with_index do |char, i|
         tally[i] ||= [0, 0]
@@ -116,26 +120,4 @@ class LifeSupportDiagnostics
   end
 end
 
-p LifeSupportDiagnostics.new(test_data).oxygen_generator_rating
-
-# p gamma_epsilon_pairs(test_data)
-# p run_diagnostics(test_data)
-
-
-# def CO2_scrubber_rating(data = @data, selected_index = 0)
-#   @pairs ||= gamma_epsilon_pairs(data)
-#   @most_common = most_common_per_index(pairs)
-#   selected = []
-
-#   data.each_with_index do |str, i|
-#     if str.chomp[selected_index] != most_common[selected_index]
-#       selected << str
-#     end
-#   end
-
-#   if selected_indices.size == 1
-#     return selected[0]
-#   else
-#     C02_rating(selected, selected_index + 1)
-#   end
-# end
+p LifeSupportDiagnostics.new(data).life_support_rating
