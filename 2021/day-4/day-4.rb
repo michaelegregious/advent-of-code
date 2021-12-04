@@ -75,7 +75,7 @@ def score_board(board)
     diag_scores[0] = Diagonals[0].select { |pair| pair == square }
     diag_scores[1] = Diagonals[1].select { |pair| pair == square }
   end
-  p "BOARD scores: #{row_scores}, #{col_scores}, #{diag_scores}"
+  # p "BOARD scores: #{row_scores}, #{col_scores}, #{diag_scores}"
   if [*row_scores, *col_scores].any?{ |score| score == 5 }
     return true
   elsif diag_scores.any?{ |score| score.length == 5 }
@@ -101,10 +101,22 @@ def play_game(boards, balls)
   end
 end
 
+def calculate_score(board, ball)
+  unmarked_squares = []
+  board[:rows].each_with_index do |row, row_n|
+    row.each_with_index do |num, col_n|
+      unless board[:marked].include?([col_n, row_n])
+        unmarked_squares << num
+      end
+    end
+  end
+  unmarked_squares.sum{ |str| str.to_i } * ball.to_i
+end
+
 test_boards = make_boards(boards_data)
 
-p play_game(test_boards, balls)
-# p mark_boards(test_boards, '7')
+winner, ball = play_game(test_boards, balls)
 
-# p test_board
+p calculate_score(winner, ball)
+
 
