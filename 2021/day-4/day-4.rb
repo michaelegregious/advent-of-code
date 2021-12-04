@@ -25,7 +25,7 @@ test_data = [
 ]
 
 # part 1
-data = test_data
+data = raw_data
 
 balls = data[0].split(',')
 boards_data = data[2..-1]
@@ -75,6 +75,7 @@ def score_board(board)
   end
 
   if [*row_scores, *col_scores].any?{ |score| score == 5 }
+    "DIAGONAL WINS: #{diag_scores}"
     return true
   elsif diag_scores.any?{ |score| score.length == 5 }
     return true
@@ -84,20 +85,20 @@ def score_board(board)
 end
 
 def play_round(boards, ball)
-  winner = nil
+  winners = []
   boards.each_with_index do |board|
     mark_board(board, ball)
-    if score_board(board) && winner.nil?
-      winner = board
+    if score_board(board)
+      winners << board
     end
   end
-  return winner
+  return winners
 end
 
 def play_game(boards, balls)
   balls.each do |ball|
-    if winner = play_round(boards, ball)
-      return [winner, ball]
+    if winners = play_round(boards, ball)
+      return winners
     end
   end
 end
@@ -121,25 +122,31 @@ boards = make_boards(boards_data)
 
 # part 2
 def lose_game(boards, balls)
+  initial_boards_count = boards.length
   winners = []
-  balls.each do |ball|
-    if winner = play_round(boards, ball)
-      p "WINNER! #{winner[:number]}, ball: #{ball}"
-      p "BOARDS.length #{boards.length}"
-      unless winners.include?(winner)
-        winners << [winner, ball]
-        boards = boards.select{ |b| b != winner }
-      end
-      if winners.length == boards.length
-        return winners
+  balls.each_with_index do |ball|
+    wins = play_round(boards, ball)
+      # p "WINNER! #{winner[:number]}, ball: #{ball}"
+      # p "BOARDS.length #{boards.length}"
+      if wins.length
+        wins.each do |win|
+          unless winners.include?(win)
+            # p "Initial Count: #{initial_boards_count}"
+            # p "winners count: #{winners.length}"
+            winners << [win, ball]
+            boards = boards.select{ |b| b != win }
+          end
+          if winners.length == initial_boards_count
+            return [win, ball]
+          end
+        end
       end
     end
-  end
   return nil
 end
 
-winners = lose_game(boards, balls)
-loser, ball = winners[-1]
+loser, ball = lose_game(boards, balls)
+# loser, ball = winners[-1]
 
 p "LOSER, #{loser}"
 p "ball: #{ball}"
