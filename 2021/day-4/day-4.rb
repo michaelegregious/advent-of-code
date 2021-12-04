@@ -75,7 +75,6 @@ def score_board(board)
   end
 
   if [*row_scores, *col_scores].any?{ |score| score == 5 }
-    "DIAGONAL WINS: #{diag_scores}"
     return true
   elsif diag_scores.any?{ |score| score.length == 5 }
     return true
@@ -126,13 +125,9 @@ def lose_game(boards, balls)
   winners = []
   balls.each_with_index do |ball|
     wins = play_round(boards, ball)
-      # p "WINNER! #{winner[:number]}, ball: #{ball}"
-      # p "BOARDS.length #{boards.length}"
       if wins.length
         wins.each do |win|
           unless winners.include?(win)
-            # p "Initial Count: #{initial_boards_count}"
-            # p "winners count: #{winners.length}"
             winners << [win, ball]
             boards = boards.select{ |b| b != win }
           end
@@ -146,10 +141,5 @@ def lose_game(boards, balls)
 end
 
 loser, ball = lose_game(boards, balls)
-# loser, ball = winners[-1]
-
-p "LOSER, #{loser}"
-p "ball: #{ball}"
-# p "WINNERS #{winners}"
 
 p calculate_score(loser, ball)
