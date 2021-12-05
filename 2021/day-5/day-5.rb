@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-raw_data = File.open('./data.txt').readlines
+puzzle_input = File.open('./data.txt').readlines
 
 test_data = [
   "0,9 -> 5,9",
@@ -23,6 +23,24 @@ def make_ranges(lines)
   end
 end
 
+def decipher_vents(ranges)
+  ranges.each_with_object([]) do |coords, field|
+    start, fin = coords
+    # start
+    if start[1] == fin[1]
+      x1, x2 = [start[0], fin[0]]
+      y = start[1]
+      range = (x1..x2).size == 0 ? (x2..x1) : (x1..x2)
+      range.each do |x|
+        field[y] = field[y] || []
+        field[y][x] = (field[y][x] || 0) + 1
+      end
+    end
+  end
+end
 
 
-p make_ranges(test_data)
+
+ranges = make_ranges(test_data)
+arr = decipher_vents(ranges)
+arr.each { |l| p l }
