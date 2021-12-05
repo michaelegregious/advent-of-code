@@ -27,27 +27,29 @@ def decipher_vents(ranges)
   ranges.each_with_object([]) do |coords, field|
     start, fin = coords
     if start[1] == fin[1]
-      x1, x2 = [start[0], fin[0]]
-      y = start[1]
-      range = (x1..x2).size == 0 ? (x2..x1) : (x1..x2)
-      range.each do |x|
-        field[y] = field[y] || []
-        field[y][x] = (field[y][x] || 0) + 1
-      end
+      set_locations(field, [start[0], fin[0]], start[1])
     elsif start[0] == fin[0]
-      y1, y2 = [start[1], fin[1]]
-      x = start[0]
-      range = (y1..y2).size == 0 ? (y2..y1) : (y1..y2)
-      range.each do |y|
-        field[y] ||= []
-        field[y][x] = (field[y][x] || 0) + 1
-      end
+      set_locations(field, [start[1], fin[1]], start[0], true)
     end
   end
 end
 
-def set_locations(ranges, sub_range, y, orientation = 'x')
-  # ranges.map!{ |row| row || [] } unless orientation == 'x'
+
+
+def set_locations(field, (x1, x2), y, y_mode = false)
+  x = y if y_mode
+  range = (x1..x2).size == 0 ? (x2..x1) : (x1..x2)
+  if y_mode
+    range.each_with_index do |y|
+      field[y] ||= []
+      field[y][x] = (field[y][x] || 0) + 1
+    end
+  else
+    range.each_with_index do |x|
+      field[y] ||= []
+      field[y][x] = (field[y][x] || 0) + 1
+    end
+  end
 end
 
 
