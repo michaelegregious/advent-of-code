@@ -26,7 +26,6 @@ end
 def decipher_vents(ranges)
   ranges.each_with_object([]) do |coords, field|
     start, fin = coords
-    # start
     if start[1] == fin[1]
       x1, x2 = [start[0], fin[0]]
       y = start[1]
@@ -35,8 +34,20 @@ def decipher_vents(ranges)
         field[y] = field[y] || []
         field[y][x] = (field[y][x] || 0) + 1
       end
+    elsif start[0] == fin[0]
+      y1, y2 = [start[1], fin[1]]
+      x = start[0]
+      range = (y1..y2).size == 0 ? (y2..y1) : (y1..y2)
+      range.each do |y|
+        field[y] ||= []
+        field[y][x] = (field[y][x] || 0) + 1
+      end
     end
   end
+end
+
+def set_locations(ranges, sub_range, y, orientation = 'x')
+  # ranges.map!{ |row| row || [] } unless orientation == 'x'
 end
 
 
