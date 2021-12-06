@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-puzzle_input = File.open('./data.txt').readlines
+real_data = File.open('./data.txt').readlines
 
 test_data = [
   "0,9 -> 5,9",
@@ -24,36 +24,43 @@ def make_ranges(lines)
 end
 
 def decipher_vents(ranges)
-  ranges.each_with_object([]) do |coords, field|
+  count = {co: 0}
+  ranges = ranges.each_with_object([]) do |coords, field|
     start, fin = coords
     if start[1] == fin[1]
-      set_locations(field, [start[0], fin[0]], start[1])
+      set_locations(field, [start[0], fin[0]], start[1], count)
     elsif start[0] == fin[0]
-      set_locations(field, [start[1], fin[1]], start[0], true)
+      set_locations(field, [start[1], fin[1]], start[0], count, true)
     end
   end
+  [ranges, count]
 end
 
 
 
-def set_locations(field, (x1, x2), y, y_mode = false)
+def set_locations(field, (x1, x2), y, count, y_mode = false)
   x = y if y_mode
   range = (x1..x2).size == 0 ? (x2..x1) : (x1..x2)
   if y_mode
     range.each_with_index do |y|
       field[y] ||= []
-      field[y][x] = (field[y][x] || 0) + 1
+      c = (field[y][x] || 0) + 1
+      field[y][x] = c
+      count[:co] += 1 if c == 2
     end
   else
     range.each_with_index do |x|
       field[y] ||= []
-      field[y][x] = (field[y][x] || 0) + 1
+      c = (field[y][x] || 0) + 1
+      field[y][x] = c
+      count[:co] += 1 if c == 2
     end
   end
 end
 
 
 
-ranges = make_ranges(test_data)
-arr = decipher_vents(ranges)
+ranges = make_ranges(real_data)
+arr, count = decipher_vents(ranges)
 arr.each { |l| p l }
+p "COUNT: #{count}"
