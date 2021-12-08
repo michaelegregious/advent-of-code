@@ -32,7 +32,6 @@ end
 def lantern_fish_hash(school, gen = 1)
   if school.kind_of? Array
     school = school.each_with_object(Hash.new(0)){ |k,h| h[k] += 1 }
-    p "SCHOOL: #{school}"
   end
 
   zeros = school[0]
