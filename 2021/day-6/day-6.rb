@@ -10,11 +10,7 @@ def process_data(data)
   data[0].split(',').map(&:to_i)
 end
 
-# each fish creates a new fish every 7 days (reset to 6 bc 0 is included)
-# one fish might give birth in 2 days, another in 4
-# each fish modeled by a single number-- days until it creates another fish
-# a new lantern fish needs slightly longer before birthing-- 2 extra days
-
+# part 1
 def lantern_fish(school, gen = 1)
   babies = []
   current = school.map do |fish|
@@ -26,13 +22,37 @@ def lantern_fish(school, gen = 1)
     end
   end
   if gen == 1
-    p [*current, *babies]
     school.length + babies.length
   else
     lantern_fish([*current, *babies], gen - 1)
   end
 end
 
+# part 2
+def lantern_fish_hash(school, gen = 1)
+  if school.kind_of? Array
+    school = school.each_with_object(Hash.new(0)){ |k,h| h[k] += 1 }
+    p "SCHOOL: #{school}"
+  end
+
+  zeros = school[0]
+
+  (0..7).each do |n|
+    school[n] = school[n + 1]
+  end
+
+  school[6] += zeros
+  school[8] = zeros
+
+  if gen == 1
+    school.to_a.reduce(0){ |acc, (k,v)| acc += v; acc }
+  else
+    lantern_fish_hash(school, gen - 1)
+  end
+end
+
 data = process_data(real_data)
 
-p lantern_fish(data, 80)
+# p lantern_fish(data, 18)
+p lantern_fish_hash(data, 256)
+
