@@ -26,3 +26,22 @@ end
 # data = process_data(real_data)
 # p crab_fuel(data)
 
+# part 2
+def crab_fuel_ramping(positions)
+  min, max = positions.reduce([Float::INFINITY, -Float::INFINITY]) do |mM, pos|
+    mM[0] = pos if pos < mM[0]
+    mM[1] = pos if pos > mM[1]
+    mM
+  end
+
+  (min..max).reduce(Float::INFINITY) do |min_fuel, int|
+    fuel = positions.sum do |pos|
+      diff = (int - pos).abs
+      diff * (diff + 1) / 2
+    end
+    fuel < min_fuel ? fuel : min_fuel
+  end
+end
+
+# data = process_data(test_data)
+# p crab_fuel_ramping(data)
