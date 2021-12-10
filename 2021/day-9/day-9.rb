@@ -28,16 +28,6 @@ def find_low_pts(rows)
 
       adjacents = [up, down, left, right].compact
 
-      if j == row.length - 1 && i == 0
-        # p row.length - 1
-        # p num
-        # p adjacents
-        p "up: #{up}"
-        p "down: #{down}"
-        p "left: #{left}"
-        p "right: #{right}"
-      end
-
       if adjacents.all? { |adj| num < adj }
         low_pts << num + 1
       end
