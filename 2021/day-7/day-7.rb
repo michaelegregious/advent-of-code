@@ -3,7 +3,6 @@
 real_data = File.open('./data.txt').readlines
 
 test_data = ['16,1,2,0,4,2,7,1,2,14']
-# test_data = ['16,1,2']
 
 def process_data(data)
   data[0].split(',').map(&:to_i)
@@ -22,9 +21,6 @@ def crab_fuel(positions)
     fuel < min_fuel ? fuel : min_fuel
   end
 end
-
-# data = process_data(real_data)
-# p crab_fuel(data)
 
 # part 2
 def crab_fuel_ramping(positions)
