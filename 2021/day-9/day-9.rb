@@ -71,7 +71,7 @@ def basin(low_pt, rows)
 
   adjacents.each do |(i, j)|
     if has_n?([i, j], rows) && rows[i][j] > rows[x][y] && rows[i][j] < 9
-      greater_adjacents([i, j], rows).each { |pr| basin_pts << pr }
+      basin([i, j], rows).each { |pr| basin_pts << pr }
     end
   end
 
@@ -79,17 +79,18 @@ def basin(low_pt, rows)
 end
 
 def has_n?((i, j), rows)
-  i, j = pt
   return false if !i&.between?(0, rows.length - 1) || !j&.between?(0, rows[0].length - 1)
   return true
 end
 
-def largest_basins(rows)
+def largest_basin(rows)
   low_pts(rows).reduce([]) do |sizes, low_pt|
-    basins << low_pt
-  end.sort.take(3).reduce(:*)
+    sizes << basin(low_pt, rows).uniq.size
+  end.sort.last(3).reduce(:*)
 end
 
 data = process_data(test_data)
 # p largest_basins(data)
-p basin([4, 6], data).uniq
+# p basin([2, 2], data).uniq.size
+p largest_basin(data)
+
