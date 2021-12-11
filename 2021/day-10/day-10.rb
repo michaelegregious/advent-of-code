@@ -46,7 +46,6 @@ end
 
 # part 2
 def find_corrupted(lines)
-  scores = { ')'=> 3, ']'=> 57, '}'=> 1197, '>'=> 25137 }
   bkts = '{}[]<>()'
   illegals = []
 
@@ -60,7 +59,6 @@ def find_corrupted(lines)
       end
       unless bkts[char_i - 1] == stack.pop
         illegals << i
-        next
       end
     end
   end
@@ -68,44 +66,40 @@ def find_corrupted(lines)
 end
 
 def reconstruct_brackets(lines)
-  scores = { ')'=> 1, ']'=> 2, '}'=> 3, '>'=> 4 }
   bkts = '{}[]<>()'
   added = Array.new(lines.length){ [] }
-  p "added: #{added}"
+
   lines.each.with_index do |line, i|
     stack = []
     line.chars.reverse_each do |char|
       char_i = bkts.index(char)
       if char_i.odd?
-        p "add to stack: #{char}"
         stack << char
         next
       end
       if popped = stack.pop
-        next
       else
-        p "CHAR: #{char}"
-        p "added: #{added.map(&:join)}"
-        # stack << bkts[bkts.index(char) + 1]
         added[i] << bkts[bkts.index(char) + 1]
-        next
       end
     end
   end
   added
 end
 
+def calculate_scores(additions)
+  additions.reduce([]) do |totals, line|
+    scores = { ')' =>  1, ']' => 2, '}' => 3, '>' => 4 }
+    score = 0
+    line.each do |bkt|
+      score = (score * 5) + scores[bkt]
+    end
+    totals << score
+  end.sort[additions.length / 2]
+end
 
-
-lines = process_data(test_data)
+lines = process_data(real_data)
 corrupted = find_corrupted(lines)
-
-
 filtered = lines.reject.with_index { |l, i| corrupted.include?(i) }
+additions = reconstruct_brackets(filtered)
 
-# p filtered
-done = reconstruct_brackets(filtered)
-
-# p done[0].join
-
-
+p calculate_scores(additions)
