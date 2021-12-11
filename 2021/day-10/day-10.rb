@@ -26,7 +26,6 @@ def bracket_matcher(lines)
   scores = { ')'=> 3, ']'=> 57, '}'=> 1197, '>'=> 25137 }
   bkts = '{}[]<>()'
   illegals = []
-
   lines.each do |line|
     stack = []
     line.chars do |char|
@@ -48,7 +47,6 @@ end
 def find_corrupted(lines)
   bkts = '{}[]<>()'
   illegals = []
-
   lines.each_with_index do |line, i|
     stack = []
     line.chars do |char|
@@ -68,7 +66,6 @@ end
 def reconstruct_brackets(lines)
   bkts = '{}[]<>()'
   added = Array.new(lines.length){ [] }
-
   lines.each.with_index do |line, i|
     stack = []
     line.chars.reverse_each do |char|
@@ -78,6 +75,7 @@ def reconstruct_brackets(lines)
         next
       end
       if popped = stack.pop
+        next
       else
         added[i] << bkts[bkts.index(char) + 1]
       end
@@ -87,11 +85,11 @@ def reconstruct_brackets(lines)
 end
 
 def calculate_scores(additions)
+  scores = { ')' =>  1, ']' => 2, '}' => 3, '>' => 4 }
   additions.reduce([]) do |totals, line|
-    scores = { ')' =>  1, ']' => 2, '}' => 3, '>' => 4 }
     score = 0
     line.each do |bkt|
-      score = (score * 5) + scores[bkt]
+      score = score * 5 + scores[bkt]
     end
     totals << score
   end.sort[additions.length / 2]
