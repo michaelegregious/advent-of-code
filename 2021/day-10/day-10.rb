@@ -25,7 +25,6 @@ def bracket_matcher(lines)
   illegals = []
 
   lines.each do |line|
-    catch :illegal do
     stack = []
     line.chars do |char|
       char_i = bkts.index(char)
@@ -35,12 +34,12 @@ def bracket_matcher(lines)
       end
       unless bkts[char_i - 1] == stack.pop
         illegals << char
-        throw :illegal
-      end
+        next
       end
     end
   end
   illegals.sum{ |il| scores[il] }
 end
 
-p bracket_matcher(test_data)
+data = process_data(real_data)
+p bracket_matcher(data)
