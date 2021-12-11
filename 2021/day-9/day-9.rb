@@ -36,9 +36,6 @@ def find_low_pts(rows)
   low_pts.sum
 end
 
-# data = process_data(real_data)
-# p find_low_pts(data)
-
 # part 2
 def low_pts(rows)
   low_pts = []
@@ -89,8 +86,7 @@ def largest_basin(rows)
   end.sort.last(3).reduce(:*)
 end
 
-data = process_data(test_data)
-# p largest_basins(data)
-# p basin([2, 2], data).uniq.size
+data = process_data(real_data)
+
 p largest_basin(data)
 
