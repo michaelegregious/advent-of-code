@@ -17,36 +17,36 @@ test_data = [
   "2311944581"
 ]
 
-# test_data = [
-#   "21904",
-#   "84611"
-# ]
-
-# test_data = [ '12']
-
 def process_data(data)
   data.map{ |row| row.chomp.split('').map(&:to_i) }
 end
 
-def risk_number(rows, position = [0, 0])
-  y, x = position
-  p "position: #{position}"
+def risk_number(rows, position = [0, 0], memo = {})
+  return memo[position] if memo[position]
 
+  y, x = position; result = 0
   right = x < rows[0].length - 1 ? rows[y][x + 1] : nil
   down = y < rows.length - 1 ? rows[y + 1][x] : nil
 
-  # binding.pry
   return 0 if [right, down].compact.empty?
-  return down + risk_number(rows, [y + 1, x]) unless right
-  return right + risk_number(rows, [y, x + 1]) unless down
 
-  r = right + risk_number(rows, [y, x + 1])
-  d = down + risk_number(rows, [y + 1, x])
+  if !right
+    result = down + risk_number(rows, [y + 1, x], memo)
+    memo[position] = result
+    return result
+  elsif !down
+    result = right + risk_number(rows, [y, x + 1], memo)
+    memo[position] = result
+    return result
+  end
 
-  d < r ? d : r
+  r = right + risk_number(rows, [y, x + 1], memo)
+  d = down + risk_number(rows, [y + 1, x], memo)
+
+  result = d < r ? d : r
+  memo[position] = result
+  result
 end
 
-rows = process_data(test_data)
-n = risk_number(rows)
-
-p n
+rows = process_data(real_data)
+p risk_number(rows)
