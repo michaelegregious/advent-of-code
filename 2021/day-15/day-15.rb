@@ -50,55 +50,83 @@ def risk_number(rows, pos = [0, 0], memo = {})
 end
 
 # part 2
-def risk_number_x(rows, pos = [0, 0], memo = {})
-  return memo[pos] if memo[pos]
-
-  y, x = pos; result = 0
-  right, down = calc_heights(rows, pos)
-
-  return 0 if [right, down].compact.empty?
-
-  if !right
-    result = down + risk_number_x(rows, [y + 1, x], memo)
-    memo[pos] = result
-    return result
-  elsif !down
-    result = right + risk_number_x(rows, [y, x + 1], memo)
-    memo[pos] = result
-    return result
+class AStarRiskNumber
+  def initialize(rows, start, finish)
+    @rows = rows
+    @queue = [[0,0]]
+    @start = start
+    @fin = finish
+    @risk_so_far = {}
+    @came_from = {}
   end
 
-  r = right + risk_number_x(rows, [y, x + 1], memo)
-  d = down + risk_number_x(rows, [y + 1, x], memo)
+  def calculate_risk
+    while(@queue.any?)
+      current = @queue.shift
+      position = current.position
+      y, x = position
 
-  # p memo
-  result = d < r ? d : r
-  memo[pos] = result
-  result
-end
+      if position == @fin # || if [up, right, down, left].compact.empty?
+        # return
+        break
+      end
 
-def calc_heights(rows, (y, x))
-  len = rows.length; wid = rows[0].length
-  total_len = len * 5; total_wid = wid * 5
+      children = {
+        up: [y - 1, x],
+        right: [y, x + 1],
+        down: [y + 1, x],
+        left: [y, x - 1]
+      }
 
-  right = if x < total_wid - 1
-    add = (x + 1) / wid + y / len
-    n = rows[y % len][(x + 1) % wid]
-    n + add > 9 ? n + add - 9 : n + add
-  else
-    nil
+      children.compact.each do |k, pos|
+        j, i = pos
+        new_risk = risk_so_far[current] + rows[j][i]
+
+        if !risk_so_far.key?(pos) || new_risk < risk_so_far[pos]
+          risk = calc_height(@rows, pos)
+          heur = estimate_dist(pos)
+          combined = combined_heur(heur, risk)
+          child = Node.new(pos, risk, combined, position)
+          enqueue_node(child)
+        end
+      end
+
+      # return 0 if [up, right, down, left].compact.empty?
+      # TODO: Define base case
+
+      reviewed[position] = node
+    end
   end
 
-  down = if y < total_len - 1
-    add = x / wid + (y + 1) / len
-    n = rows[(y + 1) % len][x % wid]
-    n + add > 9 ? n + add - 9 : n + add
-  else
-    nil
+  private
+
+  def enqueue_node(node)
+    queue << node
+    queue.sort!{ |a,b| b.heuristic <=> a.heuristic }
   end
-  # p "pos: #{[y, x]}"
-  # p "right, down: #{[right, down]}"
-  [right, down]
+
+  def estimate_dist(pos)
+    a = (@fin[0] - pos[0]).abs
+    b = (@fin[1] - pos[1]).abs
+    a + b
+  end
+
+  def combined_heur(heur, risk)
+    heur + risk
+  end
+
+  def calc_height(rows, (y, x))
+    len = rows.length; wid = rows[0].length
+    total_len = len * 5; total_wid = wid * 5
+
+    if y < 0 || x < 0 || y > total_len - 1 || x > total_wid - 1
+      return nil
+    else
+      add = x / wid + y / len
+      n = rows[y % len][x % wid]
+      n + add > 9 ? n + add - 9 : n + add
+    end
+  end
 end
 
 rows = process_data(test_data)
