@@ -55,7 +55,7 @@ class AStarRiskNumber
   def initialize(rows)
     @rows = rows
     @queue = PQueue.new([{ pos: [0,0], priority: 0 }]){ |a,b| a[:priority] < b[:priority] }
-    @fin = [rows.length - 1, rows[0].length - 1].map{ |x| x * 5 }
+    @fin = [rows.length, rows[0].length].map{ |x| x * 5 - 1 }
     @risk_so_far = { [0,0] => 0 }
     @came_from = { [0,0] => nil }
   end
@@ -76,22 +76,17 @@ class AStarRiskNumber
         [y, x - 1] => calc_node_risk([y, x - 1])
       }
 
-      neighbors.each do |pos, risk|
+      neighbors.each do |neighbor, risk|
         next unless risk
-
         new_risk = @risk_so_far[current] + risk
-        # p "risk_so_far: #{@risk_so_far}"
-        if !@risk_so_far.key?(pos) || new_risk < @risk_so_far[pos]
-          @risk_so_far[pos] = new_risk
-          priority = new_risk + estimate_dist(pos)
-          enqueue(pos, priority)
-          @came_from[pos] = current
 
+        if !@risk_so_far.key?(neighbor) || new_risk < @risk_so_far[neighbor]
+          @risk_so_far[neighbor] = new_risk
+          @came_from[neighbor] = current
+          priority = new_risk + estimate_dist(neighbor)
+          enqueue(neighbor, priority)
         end
       end
-
-      # return 0 if [up, right, down, left].compact.empty?
-      # TODO: Define base case
     end
   end
 
@@ -105,7 +100,6 @@ class AStarRiskNumber
 
   def pop_queue
     hash = @queue.pop
-    p "queue: #{hash[:pos]}, #{hash[:priority]}"
     hash[:pos]
   end
 
@@ -114,7 +108,6 @@ class AStarRiskNumber
   end
 
   def calc_node_risk((y, x))
-    p "y, x: #{y}, #{x}"
     len = @rows.length; wid = @rows[0].length
     total_len = len * 5; total_wid = wid * 5
 
@@ -128,6 +121,6 @@ class AStarRiskNumber
   end
 end
 
-rows = process_data(test_data)
+rows = process_data(real_data)
 aStar = AStarRiskNumber.new(rows)
 p aStar.calculate_risk
