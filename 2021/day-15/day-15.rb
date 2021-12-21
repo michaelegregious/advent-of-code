@@ -54,7 +54,8 @@ end
 class AStarRiskNumber
   def initialize(rows)
     @rows = rows
-    @queue = PQueue.new([{ pos: [0,0], priority: 0 }]){ |a,b| a[:priority] < b[:priority] }
+    start = { pos: [0,0], priority: 0 }
+    @queue = PQueue.new([start]){ |a,b| a[:priority] < b[:priority] }
     @fin = [rows.length, rows[0].length].map{ |x| x * 5 - 1 }
     @risk_so_far = { [0,0] => 0 }
     @came_from = { [0,0] => nil }
@@ -69,18 +70,18 @@ class AStarRiskNumber
         return @risk_so_far[current]
       end
 
-      neighbors = {
-        [y - 1, x] => calc_node_risk([y - 1, x]),
-        [y, x + 1] => calc_node_risk([y, x + 1]),
-        [y + 1, x] => calc_node_risk([y + 1, x]),
-        [y, x - 1] => calc_node_risk([y, x - 1])
-      }
+      neighbors = [
+        [y - 1, x],
+        [y, x + 1],
+        [y + 1, x],
+        [y, x - 1],
+      ].map{ |n| [n, calc_node_risk(n)] }
 
-      neighbors.each do |neighbor, risk|
+      neighbors.each do |(neighbor, risk)|
         next unless risk
         new_risk = @risk_so_far[current] + risk
 
-        if !@risk_so_far.key?(neighbor) || new_risk < @risk_so_far[neighbor]
+        if !@risk_so_far[neighbor] || new_risk < @risk_so_far[neighbor]
           @risk_so_far[neighbor] = new_risk
           @came_from[neighbor] = current
           priority = new_risk + estimate_dist(neighbor)
