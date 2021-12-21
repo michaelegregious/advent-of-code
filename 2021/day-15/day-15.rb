@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+require 'pqueue'
 require 'pry'
 
 real_data = File.open('./data.txt').readlines
@@ -51,59 +52,50 @@ end
 
 # part 2
 class AStarRiskNumber
-  def initialize(rows, start, finish)
+  def initialize(rows)
     @rows = rows
-    @queue = [[0,0]]
-    @start = start
-    @fin = finish
-    @risk_so_far = {}
-    @came_from = {}
+    @queue = PQueue.new([{ pos: [0,0], priority: 0 }]){ |a,b| a[:priority] < b[:priority] }
+    @fin = [rows.length - 1, rows[0].length - 1].map{ |x| x * 5 }
+    @risk_so_far = { [0,0] => 0 }
+    @came_from = { [0,0] => nil }
   end
 
   def calculate_risk
-    while(@queue.any?)
-      current = @queue.shift
-      position = current.position
-      y, x = position
+    while(!@queue.empty?)
+      current = pop_queue
+      y, x = current
 
-      if position == @fin # || if [up, right, down, left].compact.empty?
-        # return
-        break
+      if current == @fin
+        return @risk_so_far[current]
       end
 
-      children = {
-        up: [y - 1, x],
-        right: [y, x + 1],
-        down: [y + 1, x],
-        left: [y, x - 1]
+      neighbors = {
+        [y - 1, x] => calc_node_risk([y - 1, x]),
+        [y, x + 1] => calc_node_risk([y, x + 1]),
+        [y + 1, x] => calc_node_risk([y + 1, x]),
+        [y, x - 1] => calc_node_risk([y, x - 1])
       }
 
-      children.compact.each do |k, pos|
-        j, i = pos
-        new_risk = risk_so_far[current] + rows[j][i]
+      neighbors.each do |pos, risk|
+        next unless risk
 
-        if !risk_so_far.key?(pos) || new_risk < risk_so_far[pos]
-          risk = calc_height(@rows, pos)
-          heur = estimate_dist(pos)
-          combined = combined_heur(heur, risk)
-          child = Node.new(pos, risk, combined, position)
-          enqueue_node(child)
+        new_risk = @risk_so_far[current] + risk
+        # p "risk_so_far: #{@risk_so_far}"
+        if !@risk_so_far.key?(pos) || new_risk < @risk_so_far[pos]
+          @risk_so_far[pos] = new_risk
+          priority = new_risk + estimate_dist(pos)
+          enqueue(pos, priority)
+          @came_from[pos] = current
+
         end
       end
 
       # return 0 if [up, right, down, left].compact.empty?
       # TODO: Define base case
-
-      reviewed[position] = node
     end
   end
 
   private
-
-  def enqueue_node(node)
-    queue << node
-    queue.sort!{ |a,b| b.heuristic <=> a.heuristic }
-  end
 
   def estimate_dist(pos)
     a = (@fin[0] - pos[0]).abs
@@ -111,23 +103,31 @@ class AStarRiskNumber
     a + b
   end
 
-  def combined_heur(heur, risk)
-    heur + risk
+  def pop_queue
+    hash = @queue.pop
+    p "queue: #{hash[:pos]}, #{hash[:priority]}"
+    hash[:pos]
   end
 
-  def calc_height(rows, (y, x))
-    len = rows.length; wid = rows[0].length
+  def enqueue(position, priority)
+    @queue << { pos: position, priority: priority }
+  end
+
+  def calc_node_risk((y, x))
+    p "y, x: #{y}, #{x}"
+    len = @rows.length; wid = @rows[0].length
     total_len = len * 5; total_wid = wid * 5
 
     if y < 0 || x < 0 || y > total_len - 1 || x > total_wid - 1
       return nil
     else
       add = x / wid + y / len
-      n = rows[y % len][x % wid]
+      n = @rows[y % len][x % wid]
       n + add > 9 ? n + add - 9 : n + add
     end
   end
 end
 
 rows = process_data(test_data)
-p risk_number_x(rows)
+aStar = AStarRiskNumber.new(rows)
+p aStar.calculate_risk
