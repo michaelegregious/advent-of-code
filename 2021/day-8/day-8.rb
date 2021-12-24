@@ -32,8 +32,6 @@ Digits = {
   9 => 'abcdfg'
 }
 
-Unique_lengths = [1, 4, 7, 8].map{ |n| Digits[n].length }
-
 def process_data(rows)
   rows.map do |row|
     patterns, output = row.split('|')
@@ -53,12 +51,75 @@ def unique_digits(rows)
 end
 
 # part 2
+UniqueLengths = {
+  2 => 1, # Length => Digit
+  4 => 4,
+  3 => 7,
+  7 => 8
+}
 
+# char_map: { encrypted_char: actual_char }
+def validate_char_map(patterns, char_map)
+  patterns.all? do |pattern|
+    Digits.values.include?(
+      pattern.chars.map{ |char| char_map[char] }.sort.join
+    )
+  end
+end
+
+def decipher_mapping(row)
+  abc = 'abcdefg'
+  patterns = row.flatten
+  abc.chars.permutation.each do |perm|
+    char_map = perm.map{ |c| [c, perm[abc.index(c)] ] }.to_h
+    if validate_char_map(patterns, char_map)
+      return char_map
+    end
+  end
+end
+
+def decode_output(row, char_map)
+  output = row[1]
+  output.reduce('') do |n_str, ptrn|
+    decoded = ptrn.chars.map{ |c| char_map[c] }.sort.join
+    n_str << Digits.key(decoded).to_s
+  end.to_i
+end
+
+def count_outputs(rows)
+  rows.reduce(0) do |count, row|
+    char_map = decipher_mapping(row)
+    count += decode_output(row, char_map)
+  end
+end
 
 rows = process_data(real_data)
-# unique_digits(rows)
+p count_outputs(rows)
 
-p unique_digits(rows)
+# def narrow(row)
+#   patterns, output = row
+#   d_map = (0..9).each_with_object({}){ |ch, h| h[ch] = nil }
+#   char_map = 'abcdefg'.chars.each_with_object({}){ |ch,h| h[ch] = nil }
 
+#   patterns.each do |pattern|
+#     length = pattern.length
+#     if UniqueLengths.include?(length) && !d_map[UniqueLengths[length]]
+#       d_map[UniqueLengths[length]] = pattern
+#     end
+#   end
 
-
+#   'abcdefg'.char.each do |char|
+#     if !d_map[1].include?(char) && d_map[7].include?(char)
+#       char_map[char] = 'a'
+#     elsif Digits[1].include?(char) && !Digits[5].include?(char)
+#       char_map[char] = 'c'
+#     elsif Digits[8].includes?(char) && !Digits[0].include?(char)
+#       char_map[char] = 'd'
+#     elsif Digits[8].include?(char) && !Digits[9].include?(char)
+#       char_map[char] = 'e'
+#     elsif Digits[1].include?(char) && Digits[5].include?(char)
+#       char_map[char] = 'f'
+#     end
+#   end
+#   [d_map, char_map]
+# end
