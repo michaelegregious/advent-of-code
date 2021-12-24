@@ -4,6 +4,14 @@
 
 real_data = File.open('./data.txt').readlines
 
+test_1 = [
+  "11111",
+  "19991",
+  "19191",
+  "19991",
+  "11111"
+]
+
 test_data = [
   "5483143223",
   "2745854711",
@@ -30,66 +38,68 @@ end
 # ]
 
 def step(grid)
+  p "initial grid: #{grid}"
   flashes = Hash.new(nil)
-  length = grid.sum{ |row| row.length }
+  length = grid.length; width = grid[0].length
   wave = 0
 
   # all octs increase by 1
   grid.each_with_index do |row, y|
     row.each_with_index do |oct, x|
-      # if oct == 9
-      #   flashes[[y, x]] = 1
-      # else
-      #   grid[y][x] += 1
-      # end
       grid[y][x] += 1
-      if grid[y][x] >= 9
+      if grid[y][x] > 9
         flashes[[y, x]] = wave
       end
     end
   end
 
-  p "flashes: #{flashes}"
-  while true
-    grid.each_with_index do |row, y|
-      row.each_with_index do |oct, x|
+  wave += 1
 
-        loc = [y, x]
-        if oct == 9 && flashes[loc] == 0
-          flashes_this_wave << { loc => wave }
-        elsif h = check_adjacents(loc, flashes, wave)
-          p "adjs: #{h}"
-          grid[y][x] += 1
+  while flashes.has_value?(wave - 1)
+    puts "flashes: #{flashes}"
+    last_flashes = flashes.select{ |fl, w| w == wave - 1}
+    puts "last Flashes: #{last_flashes}"
+    # puts "flashes: #{flashes}"
+    last_flashes.each do |flash, w|
+
+      adjacents(flash).each do |(y, x)|
+        next if y > length - 1 || x > width - 1 || y < 0 || x < 0
+        grid[y][x] += 1
+        if grid[y][x] >= 9 && !flashes[[y, x]]
+          flashes[[y, x]] = wave
         end
-        break if flashes_this_wave.empty?
-        wave += 1
-        flashes_this_wave.each{ |k, v| flashes[k] = v }
-        flashes_this_wave = []
-        p "flashes: #{flashes}"
-        p "flashes_this_wave? #{flashes_this_wave}"
       end
     end
+    wave += 1
   end
-  p "end"
-  grid
+  # p "final flashes: #{flashes}"
+  grid.map do |row|
+    row.map{ |n| n > 9 ? 0 : n  }
+  end
+  # grid
 end
 
-def check_adjacents((i, j), flashes, wave)
-  adjacents = [
-    [i - 1, j],
-    [i - 1, j+ 1],
-    [i, j + 1],
-    [i + 1, j + 1],
-    [i + 1, j],
-    [i + 1, j - 1],
-    [i, j - 1],
-    [i - 1, j - 1]
+def adjacents((y, x))
+  [
+    [y - 1, x],
+    [y - 1, x + 1],
+    [y, x + 1],
+    [y + 1, x + 1],
+    [y + 1, x],
+    [y + 1, x - 1],
+    [y, x - 1],
+    [y - 1, x - 1]
   ]
-  adjacents.any?{ |adj| wave - flashes[adj] > 1 }
+end
+
+def dumbo_steps(steps)
+  steps.times{ |n| }
 end
 
 data = process_data(test_data)
-p step(data)
+rows = step(data)
+p rows
+# p step(rows)
 
 # n = i > 0 ? rows[i - 1][j] : nil
 # ne = i > 0 && j != length ? rows[i - 1][j + 1] : nil
