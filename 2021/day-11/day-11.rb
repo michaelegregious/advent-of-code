@@ -27,6 +27,7 @@ def process_data(data)
   data.map{ |line| line.chomp.chars.map(&:to_i) }
 end
 
+# part 1
 def step(grid)
   flashes = Hash.new(nil)
   length = grid.length; width = grid[0].length
@@ -79,15 +80,25 @@ end
 
 def dumbo_steps(grid, steps)
   total = 0
-  rows = grid
   steps.times do |n|
-    rows, flashes = step(rows)
+    grid, flashes = step(grid)
     total += flashes
   end
   total
 end
 
-data = process_data(real_data)
-p dumbo_steps(data, 100)
+# grid = process_data(real_data)
+# p dumbo_steps(grid, 100)
 
+# part 2
+def simultaneous_flash(grid)
+  step = 1
+  while true
+    grid, flashes = step(grid)
+    return step if flashes == grid.length * grid[0].length
+    step += 1
+  end
+end
 
+grid = process_data(real_data)
+p simultaneous_flash(grid)
