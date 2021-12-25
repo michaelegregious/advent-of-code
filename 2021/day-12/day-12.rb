@@ -14,6 +14,14 @@ test_data = [
   "b-end"
 ]
 
+test_data0 = [
+  "start-A",
+  "start-b",
+  "b-A",
+  "A-end",
+  "b-end"
+]
+
 test_data1 = [
   'dc-end',
   'HN-start',
@@ -57,6 +65,7 @@ def process_data(lines)
   end
 end
 
+# part 1
 def enumerate_paths(graph, node = 'start', path = 'start', paths = [])
   if node == 'end'
     return path
@@ -70,11 +79,50 @@ def enumerate_paths(graph, node = 'start', path = 'start', paths = [])
   paths.select{ |path| path.is_a? String }
 end
 
-graph = process_data(test_data2)
+# part 2
+def enumerate_small_caves(graph, node = 'start', path = 'start', paths = [], memo = {})
+  if node == 'end'
+    return path
+  end
 
-paths = enumerate_paths(graph)
-p paths
+  graph[node].each do |cnx|
+    next if cnx == 'start' && path.include?(cnx)
+    sm_caves = path.scan(/,([[:lower:]]+)/)
+    next if sm_caves.uniq.length + 1 < sm_caves.length
+
+    paths << enumerate_small_caves(graph, cnx, "#{path},#{cnx}", paths, memo)
+  end
+
+  paths.select{ |path| path.is_a? String }
+end
+
+def enumerate_small_caves(graph, node = 'start', path = 'start', paths = [], memo = {})
+  return memo[path] if memo[path]
+  if node == 'end'
+    memo[path] = path
+    return path
+  end
+
+  graph[node].each do |cnx|
+    next if cnx == 'start' && path.include?(cnx)
+    sm_caves = path.scan(/,([[:lower:]]+)/)
+    next if sm_caves.uniq.length + 1 < sm_caves.length
+
+    paths << enumerate_small_caves(graph, cnx, "#{path},#{cnx}", paths, memo)
+  end
+
+  result = paths.select{ |path| path.is_a? String }
+  memo[path] = result
+  result
+end
+
+graph = process_data(test_data)
+# paths = enumerate_small_caves(graph)
+paths = enumerate_small_caves(graph)
+# p paths
 p paths.length
+
+
 
 
 
