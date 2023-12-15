@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+require 'pry'
 require 'set'
 
 real_data = File.open('./data.txt').readlines
@@ -80,47 +81,40 @@ def enumerate_paths(graph, node = 'start', path = 'start', paths = [])
 end
 
 # part 2
-def enumerate_small_caves(graph, node = 'start', path = 'start', paths = [], memo = {})
-  if node == 'end'
-    return path
+def enumerate_small_caves(graph, node = 'start', visited = Set.new, small_twice = true)
+  def lower(n) /[[:lower:]]/.match(n) end
+
+  visited.add(node) if lower(node)
+
+    binding.pry
+  # if /[[:lower:]]/.match(node)
+  #   visited.add(node)
+  # end
+
+  n_paths = 0
+
+  # puts "v: #{visited}"
+  # puts "graph: #{graph}"
+
+
+
+  graph[node].each do |nbr|
+    if nbr == 'end'
+      n_paths += 1
+    elsif !visited.include?(nbr)
+      n_paths += enumerate_small_caves(graph, nbr, visited, small_twice)
+    elsif nbr != 'start' && small_twice
+      # puts "small_twice: #{nbr}"
+      n_paths += enumerate_small_caves(graph, nbr, visited, false)
+    end
   end
-
-  graph[node].each do |cnx|
-    next if cnx == 'start' && path.include?(cnx)
-    sm_caves = path.scan(/,([[:lower:]]+)/)
-    next if sm_caves.uniq.length + 1 < sm_caves.length
-
-    paths << enumerate_small_caves(graph, cnx, "#{path},#{cnx}", paths, memo)
-  end
-
-  paths.select{ |path| path.is_a? String }
+  # puts "n_paths: #{n_paths}, node: #{node}, #{graph[node]}"
+  n_paths
 end
 
-def enumerate_small_caves(graph, node = 'start', path = 'start', paths = [], memo = {})
-  return memo[path] if memo[path]
-  if node == 'end'
-    memo[path] = path
-    return path
-  end
-
-  graph[node].each do |cnx|
-    next if cnx == 'start' && path.include?(cnx)
-    sm_caves = path.scan(/,([[:lower:]]+)/)
-    next if sm_caves.uniq.length + 1 < sm_caves.length
-
-    paths << enumerate_small_caves(graph, cnx, "#{path},#{cnx}", paths, memo)
-  end
-
-  result = paths.select{ |path| path.is_a? String }
-  memo[path] = result
-  result
-end
-
-graph = process_data(test_data)
-# paths = enumerate_small_caves(graph)
+graph = process_data(test_data2)
 paths = enumerate_small_caves(graph)
-# p paths
-p paths.length
+p paths
 
 
 
