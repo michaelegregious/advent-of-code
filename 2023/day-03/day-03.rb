@@ -39,19 +39,16 @@ class GondolaLift
   end
 
   def find_part_numbers
-    @coordinates.each_with_object([]) do |((x, y), value), part_numbers|
+    coordinates.each_with_object([]) do |((x, y), number), part_numbers|
       catch :part_number_found do
+        next unless is_numeric?(number)
 
-        if is_numeric?(value)
-          number_length = value.length
+        number.length.times do |num|
+          adjacencies(x + num, y).each do |adjacency|
+            if coordinates[adjacency] && !is_numeric?(@coordinates[adjacency])
+              part_numbers << value.to_i
 
-          number_length.times do |num|
-            adjacencies(x + num, y).each do |adjacency|
-              if @coordinates[adjacency] && !is_numeric?(@coordinates[adjacency])
-                part_numbers << value.to_i
-
-                throw :part_number_found
-              end
+              throw :part_number_found
             end
           end
         end
@@ -61,28 +58,35 @@ class GondolaLift
 
   # part 2
   def find_gears
-    @coordinates.each_with_object([]) do |((x, y), value), verified_gears|
-      if value == '*'
-        adjacent_part_numbers = Set.new([])
+    coordinates.each_with_object([]) do |((x, y), symbol), verified_gears|
+      next unless symbol == '*'
 
-        adjacencies(x, y).each do |adjacency|
-          if plumped_up_number_coordinates[adjacency] &&
-            is_numeric?(@coordinates[plumped_up_number_coordinates[adjacency]])
+      adjacent_part_numbers = Set.new([])
 
-            adjacent_part_numbers.add(@coordinates[plumped_up_number_coordinates[adjacency]].to_i)
-          end
+      adjacencies(x, y).each do |adjacency|
+        if coordinate_has_number?(adjacency)
+          adjacent_part_numbers.add(number_by_coordinates(adjacency))
         end
-
-        verified_gears << adjacent_part_numbers.to_a.inject(:*) if adjacent_part_numbers.length == 2
       end
+
+      verified_gears << adjacent_part_numbers.to_a.inject(:*) if adjacent_part_numbers.length == 2
     end
   end
 
   private
 
+  def number_by_coordinates(position)
+    coordinates[plumped_up_number_coordinates[position]].to_i
+  end
+
+  def coordinate_has_number?(position)
+    plumped_up_number_coordinates[position] &&
+      is_numeric?(coordinates[plumped_up_number_coordinates[position]])
+  end
+
   # returns a hash of [x, y] => [x, y] coordinates for each digit pointing to the coordinate of the first digit
   def plumped_up_number_coordinates
-    @plumped_up_number_coordinates ||= @coordinates.each_with_object({}) do |((x, y), digit), plumped_up|
+    @plumped_up_number_coordinates ||= coordinates.each_with_object({}) do |((x, y), digit), plumped_up|
       next unless is_numeric?(digit)
 
       digit.length.times { |idx| plumped_up[[x + idx, y]] = [x, y] }
@@ -106,6 +110,7 @@ class GondolaLift
     obj.to_s.match(/\d+/) == nil ? false : true
   end
 
+  attr_reader :coordinates
 end
 
 # part 1
