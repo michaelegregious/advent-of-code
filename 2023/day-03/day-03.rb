@@ -59,28 +59,21 @@ class GondolaLift
     end
   end
 
+  # part 2
   def find_gears
-    # p "coordinates: #{@coordinates}"
-    p "plumped_up_number_coordinates: #{plumped_up_number_coordinates}"
     @coordinates.each_with_object([]) do |((x, y), value), verified_gears|
       if value == '*'
         adjacent_part_numbers = Set.new([])
 
         adjacencies(x, y).each do |adjacency|
-          # p "adjacency: #{adjacency}"
-          # p "@plumped_up_number_coordinates[adjacency]: #{plumped_up_number_coordinates[adjacency]}"
-          # p "@coordinates[@plumped_up_number_coordinates[adjacency]]: #{@coordinates[@plumped_up_number_coordinates[adjacency]]}"
+          if plumped_up_number_coordinates[adjacency] &&
+            is_numeric?(@coordinates[plumped_up_number_coordinates[adjacency]])
 
-          if @plumped_up_number_coordinates[adjacency] &&
-            is_numeric?(@coordinates[@plumped_up_number_coordinates[adjacency]])
-
-            adjacent_part_numbers.add(@coordinates[@plumped_up_number_coordinates[adjacency]].to_i)
+            adjacent_part_numbers.add(@coordinates[plumped_up_number_coordinates[adjacency]].to_i)
           end
         end
-        p "adjacent_part_numbers: #{adjacent_part_numbers}"
 
-        verified_gears << adjacent_part_numbers if adjacent_part_numbers.length == 2
-        p "verified_gears: #{verified_gears}"
+        verified_gears << adjacent_part_numbers.to_a.inject(:*) if adjacent_part_numbers.length == 2
       end
     end
   end
@@ -120,4 +113,5 @@ end
 # p GondolaLift.new(process_data(real_data)).find_part_numbers.sum
 
 # part 2
-p GondolaLift.new(test_data).find_gears
+p GondolaLift.new(test_data).find_gears.sum
+p GondolaLift.new(process_data(real_data)).find_gears.sum
