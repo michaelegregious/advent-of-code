@@ -23,6 +23,8 @@ end
 
 # part 1
 class GondolaLift
+  attr_reader :coordinates
+
   def initialize(lines)
     @lines = lines
     @coordinates = number_and_symbol_coordinates
@@ -45,7 +47,7 @@ class GondolaLift
 
         number.length.times do |num|
           adjacencies(x + num, y).each do |adjacency|
-            if coordinates[adjacency] && !is_numeric?(@coordinates[adjacency])
+            if coordinates[adjacency] && !is_numeric?(coordinates[adjacency])
               part_numbers << value.to_i
 
               throw :part_number_found
@@ -88,7 +90,6 @@ class GondolaLift
   def plumped_up_number_coordinates
     @plumped_up_number_coordinates ||= coordinates.each_with_object({}) do |((x, y), digit), plumped_up|
       next unless is_numeric?(digit)
-
       digit.length.times { |idx| plumped_up[[x + idx, y]] = [x, y] }
     end
   end
@@ -110,7 +111,6 @@ class GondolaLift
     obj.to_s.match(/\d+/) == nil ? false : true
   end
 
-  attr_reader :coordinates
 end
 
 # part 1
