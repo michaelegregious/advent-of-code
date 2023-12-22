@@ -23,7 +23,7 @@ end
 class GondolaLift
   def initialize(lines)
     @lines = lines
-    # @numbers = get_numbers
+    @coordinates = number_and_symbol_coordinates
   end
 
   # returns a hash of [x, y] => 123 or [x, y] => '#' coordinates for first letter
@@ -36,8 +36,45 @@ class GondolaLift
     end
   end
 
+  def is_numeric?(obj)
+    obj.to_s.match(/\d+/) == nil ? false : true
+  end
+
+  def find_part_numbers
+    @coordinates.each_with_object([]) do |((x, y), value), part_numbers|
+      catch :part_number_found do
+
+        if is_numeric?(value)
+          number_length = value.length
+
+          number_length.times do |num|
+            adjacencies(x + num, y).each do |adjacency|
+              if (@coordinates[adjacency] && !is_numeric?(@coordinates[adjacency]))
+                part_numbers << value.to_i
+
+                throw :part_number_found
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+
+  def adjacencies(x, y)
+    [
+      [x, y + 1],
+      [x + 1, y + 1],
+      [x + 1, y],
+      [x + 1, y - 1],
+      [x, y - 1],
+      [x - 1, y - 1],
+      [x - 1, y],
+      [x - 1, y + 1],
+    ]
+  end
+
 end
 
-p test_data
-p GondolaLift.new(test_data).number_coordinates
+p GondolaLift.new(test_data).find_part_numbers.sum
 
