@@ -16,7 +16,6 @@ questioned_counts = {
   'blue' => 14,
 }
 
-
 def process_data(data)
   data.map{ |line| line.chomp }
 end
@@ -26,10 +25,10 @@ class CubeGame
   def initialize(games, questioned_counts)
     @games = games
     @questioned_counts = questioned_counts
-
     @game_counts = parse_games
   end
 
+  # returns a hash of game_id => { color => maxCount } for each game
   def parse_games
     @games.each_with_object({}) do |game, dictionary|
       game_n, cube_counts = game.split(':')
@@ -43,18 +42,31 @@ class CubeGame
   end
 
   def possible_games
-    @game_counts.each_with_object([]) do |(game_id, counts), possible_games|
+    @game_counts.each_with_object([]) do |(game_id, counts), possibilities|
       if @questioned_counts.all? { |color, n| counts[color] <= n }
-        possible_games << game_id
+        possibilities << game_id
       end
+    end
+  end
+
+  # part 2
+  def minimum_game_powers
+    @game_counts.each_with_object([]) do |(_, counts), powers|
+      powers << game_cubes_power(counts)
+    end.sum
+  end
+
+  # multiplies the counts of each color in a red/green/blue hash
+  def game_cubes_power(cube_counts)
+    cube_keys = %w(red green blue)
+    cube_keys.inject(1) do |product, color|
+      cube_counts[color] * product
     end
   end
 end
 
-puts 'test'
-p CubeGame.new(test_games_1, questioned_counts).possible_games.sum
-
-puts 'real'
+# part 1
 p CubeGame.new(process_data(real_data), questioned_counts).possible_games.sum
 
-
+# part 2
+p CubeGame.new(process_data(real_data), questioned_counts).minimum_game_powers
